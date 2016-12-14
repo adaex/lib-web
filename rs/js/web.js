@@ -3,8 +3,8 @@
 
     var web = {
         c: {login: false, init: 0},
-        vue: {},
-        data: {},
+        v: {},
+        m: {},
         methods: {
             $200: false,
             $400: false,
@@ -15,6 +15,7 @@
     };
 
     window.web = web;
+    window.$$ = web;
 
     web.loadCss = function (url) {
         var node = document.createElement('link');
@@ -153,26 +154,26 @@
 
         //初始化数据
         if (web.c.init > 1) {
-            web.vue.$destroy();
+            web.v.$destroy();
 
-            delete web.vue;
-            delete web.data;
+            delete web.v;
+            delete web.m;
 
-            // web.vue = null;
-            // web.data = {};
+            // web.v = null;
+            // web.m = {};
         }
 
         //初始化vue数据
         vue.loaded();
-        vue.data = web.data;
+        vue.data = web.m;
 
         //初始化Dom
         $("#app").remove();
         $('body').off().append("<div id='app'><div id='content'></div></div>");
 
         //初始化并挂载vue
-        web.vue = new Vue(vue);
-        web.vue.$mount('#content');
+        web.v = new Vue(vue);
+        web.v.$mount('#content');
 
         return true;
     };

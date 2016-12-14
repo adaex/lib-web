@@ -15,7 +15,6 @@
         if (!opts.data.hasOwnProperty('values'))
             opts.data = {values: opts.data};
 
-
         api.ajax(opts, function (ret, err) {
             if (ret) {
                 web.methods.ajax_result(para.result, ret);

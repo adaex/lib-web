@@ -1,5 +1,5 @@
 /*!
- * web.js v0.0.2
+ * web.js v{version}
  * (c) 2016 hnbtr
  * Released under the MIT License.
  */
