@@ -95,8 +95,10 @@
         opts.result = {};
 
         var auth = {Token: web.c.token, Access: web.c.access};
-        if (web.c.auth && web.c.auth == 'body') $.extend(opts.data, auth);
-        else opts.headers = auth;
+        if (web.c.login || (web.c.auth && web.c.auth == 'body'))
+            $.extend(opts.data, auth);
+        else
+            opts.headers = auth;
 
         if (opts.url.indexOf("http://") < 0) opts.url = web.c.host + opts.url;
         if (opts.url.indexOf(".json") < 0) opts.url += '.json';
@@ -152,8 +154,12 @@
         //初始化数据
         if (web.c.init > 1) {
             web.vue.$destroy();
-            web.vue = null;
-            web.data = {};
+
+            delete web.vue;
+            delete web.data;
+
+            // web.vue = null;
+            // web.data = {};
         }
 
         //初始化vue数据

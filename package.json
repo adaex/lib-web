@@ -1,10 +1,9 @@
 {
   "name": "fis-lib-web",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "fis-lib-web",
   "author": "yangtao",
   "scripts": {
-    "build": "cd rs && fis3 release build -c",
-    "clean": "cd rs && fis3 release -c"
+    "clean": "cd rs && fis-um release -c"
   }
 }
