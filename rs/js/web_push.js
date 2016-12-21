@@ -1,13 +1,21 @@
 (function (window) {
     'use strict';
 
-    function page_push(url, replace) {
+    function page_push(url, type) {
+        if (url == location.href) return;
+        if (type == 'hash') {
+            setTimeout(function () {
+                location.href = url;
+            }, 0);
+            return;
+        }
+
         if (web.methods.page_start) web.methods.page_start();
         $.ajax({
             url: url,
             dataType: 'json',
             success: function (ret) {
-                history_operate(ret, url, replace);
+                history_operate(ret, url, type == 'replace');
             },
             error: function (e) {
                 if (web.methods.page_error) web.methods.page_error(e);
@@ -25,6 +33,8 @@
     }
 
     function page_show(state) {
+
+        if (!(state && state.css && state.js)) return;
 
         var res_map_js = '', res_map_css = '', js_count = 0, divide = ',';
 
@@ -67,8 +77,9 @@
 
     $(document).delegate('a', 'click', function (event) {
         var url = $(this).attr('href') + '';
+        var type = $(this).attr('data-type') + '';
         if (url.indexOf('.html') > 0) {
-            page_push(url);
+            page_push(url, type);
             event.preventDefault();
         }
     });

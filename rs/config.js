@@ -1,6 +1,6 @@
 module.exports = {
     isMin: false,
-    version: '0.0.3',
+    version: '0.0.4',
     mode: 'replace',
     config: function (fis) {
 
