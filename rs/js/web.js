@@ -2,7 +2,7 @@
     'use strict';
 
     var web = {
-        c: {login: false, init: 0},
+        c: {auth: true, init: 0},
         v: {},
         m: {},
         methods: {
@@ -33,13 +33,24 @@
         document.body.appendChild(node);
     };
 
+    web.setConfig = function (config) {
+        if (typeof config == "string") {
+            try {
+                config = JSON.parse(config);
+            } catch (e) {
+                throw new Error("web: config must be a json object");
+            }
+        }
+        $.extend(web.c, config);
+    };
+
     web.initConfig = function () {
         if (web.c.init < 1) {
-            if (!web.c.login) {
+            if (web.c.auth) {
                 var lc = web.localConfig();
                 if (!lc || lc.access == '' || lc.token == '')
                     return false;
-                web.c = lc;
+                $.extend(web.c, lc);
                 if (web.methods.config_check && !web.methods.config_check())
                     return false;
             }
@@ -96,7 +107,7 @@
         opts.result = {};
 
         var auth = {Token: web.c.token, Access: web.c.access};
-        if (web.c.login || (web.c.auth && web.c.auth == 'body'))
+        if (web.c.auth == 'body')
             $.extend(opts.data, auth);
         else
             opts.headers = auth;
@@ -155,12 +166,8 @@
         //初始化数据
         if (web.c.init > 1) {
             web.v.$destroy();
-
             delete web.v;
             delete web.m;
-
-            // web.v = null;
-            // web.m = {};
         }
 
         //初始化vue数据
@@ -169,7 +176,7 @@
 
         //初始化Dom
         $("#app").remove();
-        $('body').off().append("<div id='app'><div id='content'></div></div>");
+        $('body').off().prepend("<div id='app'><div id='content'></div></div>");
 
         //初始化并挂载vue
         web.v = new Vue(vue);
