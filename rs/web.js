@@ -18,7 +18,7 @@ __inline('./js/support.js');
 __inline('./lib/jquery_2.2.4.js');
 
 /*vue*/
-__inline('./lib/vue_2.1.6.js');
+__inline('./lib/vue_2.1.7.js');
 
 /*web*/
 __inline('./js/web.js');

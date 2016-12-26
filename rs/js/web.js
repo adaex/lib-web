@@ -106,11 +106,13 @@
 
         opts.result = {};
 
-        var auth = {Token: web.c.token, Access: web.c.access};
-        if (web.c.auth == 'body')
-            $.extend(opts.data, auth);
-        else
-            opts.headers = auth;
+        if (web.c.auth && web.c.token != '') {
+            var auth = {Token: web.c.token, Access: web.c.access};
+            if (web.c.auth == 'body')
+                $.extend(opts.data, auth);
+            else
+                opts.headers = auth;
+        }
 
         if (opts.url.indexOf("http://") < 0) opts.url = web.c.host + opts.url;
         if (opts.url.indexOf(".json") < 0) opts.url += '.json';
