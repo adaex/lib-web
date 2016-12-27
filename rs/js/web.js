@@ -17,6 +17,11 @@
     window.web = web;
     window.$$ = web;
 
+    web.log = function (log) {
+        if (web.c.debug)
+            console.log(log);
+    };
+
     web.loadCss = function (url) {
         var node = document.createElement('link');
         node.type = 'text/css';
@@ -34,7 +39,7 @@
     };
 
     web.setConfig = function (config) {
-        if (typeof config == "string") {
+        if (typeof config === "string") {
             try {
                 config = JSON.parse(config);
             } catch (e) {
@@ -45,10 +50,10 @@
     };
 
     web.initConfig = function () {
-        if (web.c.init < 1) {
+        if (web.c.init < 1 || web.c.access === '') {
             if (web.c.auth) {
                 var lc = web.localConfig();
-                if (!lc || lc.access == '' || lc.token == '')
+                if (!lc || lc.access === '' || lc.token === '')
                     return false;
                 $.extend(web.c, lc);
                 if (web.methods.config_check && !web.methods.config_check())
@@ -69,27 +74,26 @@
             url_query[query_param[0]] = query_param[1];
         }
         web.c.path = location.pathname.substr(1).replace('.html', '').split('/');
-        web.c.hash_param = location.hash.substr(1).split('/');
-        web.c.query_param = url_query;
+        web.c.hash = location.hash.substr(1).split('/');
+        web.c.query = url_query;
         return true;
     };
 
     web.initDebugConfig = function () {
         var is_dev = !!web.c.debug;
         Vue.config.silent = !is_dev;
-        Vue.config.devtools = is_dev
+        Vue.config.devtools = is_dev;
+        if (!is_dev) {
+            web.log = function () {
+            };
+        }
     };
 
     web.localStore = function (key, value) {
         if (!key) return false;
-        if (value == null) {
-            return JSON.parse(localStorage.getItem(key));
-        } else if (typeof value == 'function') {
-            var val = JSON.parse(localStorage.getItem(key));
-            if (val == null) value();
-        } else {
-            return localStorage.setItem(key, JSON.stringify(value));
-        }
+        if (value) return localStorage.setItem(key, JSON.stringify(value));
+        else return JSON.parse(localStorage.getItem(key));
+
     };
 
     web.sessionStore = function (key, value) {
@@ -106,9 +110,9 @@
 
         opts.result = {};
 
-        if (web.c.auth && web.c.token != '') {
+        if (web.c.auth && web.c.token !== '') {
             var auth = {Token: web.c.token, Access: web.c.access};
-            if (web.c.auth == 'body')
+            if (web.c.auth === 'body')
                 $.extend(opts.data, auth);
             else
                 opts.headers = auth;

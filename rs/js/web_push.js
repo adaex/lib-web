@@ -1,35 +1,60 @@
 (function (window) {
     'use strict';
 
+    var stateUrl = '';
+    web.go = page_push;
+    web.methods.page_start = false;
+    web.methods.page_error = false;
+    web.methods.page_end = false;
+
+    function state_url(url) {
+        if (url)return url.split('#')[0] === stateUrl;
+        stateUrl = location.href.split('#')[0];
+    }
+
+    function get_state(url, callback) {
+        var short_url = url.split('#')[0].replace(location.protocol + '//' + location.host, '');
+        var state = web.sessionStore(short_url);
+        if (state) {
+            callback(state);
+        } else {
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                success: function (ret) {
+                    web.sessionStore(short_url, ret);
+                    callback(ret);
+                },
+                error: function (e) {
+                    if (web.methods.page_error) web.methods.page_error(e);
+                    if (web.methods.page_end) web.methods.page_end();
+                }
+            });
+        }
+    }
+
     function page_push(url, type) {
-        if (url == location.href) return;
-        if (type == 'hash') {
-            setTimeout(function () {
-                location.href = url;
-            }, 0);
+        if (url === location.href) return;
+
+        if (type === 'hash') {
+            history_operate(false, url, type);
             return;
         }
 
         if (web.methods.page_start) web.methods.page_start();
-        $.ajax({
-            url: url,
-            dataType: 'json',
-            success: function (ret) {
-                history_operate(ret, url, type == 'replace');
-            },
-            error: function (e) {
-                if (web.methods.page_error) web.methods.page_error(e);
-                if (web.methods.page_end) web.methods.page_end();
-            }
-        });
+
+        get_state(url, function (state) {
+            history_operate(state, url, type);
+            page_show(state);
+        })
     }
 
-    function history_operate(state, url, replace) {
-        if (replace && replace == true)
+    function history_operate(state, url, type) {
+        if (type === 'replace')
             window.history.replaceState(state, '', url);
         else
             window.history.pushState(state, '', url);
-        page_show(state);
+        state_url();
     }
 
     function page_show(state) {
@@ -71,8 +96,15 @@
         exec_script();
     }
 
-    window.onpopstate = function (event) {
-        page_show(event.state);
+    window.onpopstate = function () {
+        var url = location.href;
+        if (state_url(url)) {
+        } else {
+            get_state(url, function (state) {
+                page_show(state);
+            });
+        }
+        state_url();
     };
 
     $(document).delegate('a', 'click', function (event) {
@@ -84,9 +116,5 @@
         }
     });
 
-    web.go = page_push;
-    web.methods.page_start = false;
-    web.methods.page_error = false;
-    web.methods.page_end = false;
 
 })(this);

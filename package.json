@@ -4,6 +4,7 @@
   "description": "fis-lib-web",
   "author": "yangtao",
   "scripts": {
-    "clean": "cd rs && fis-um release -c"
+    "clean": "cd rs && fis-um release -c",
+    "work": "cd rs && fis-um release -w"
   }
 }
