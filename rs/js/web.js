@@ -10,16 +10,17 @@
             $400: false,
             $401: false,
             config_check: false
-        },
-        on_hash_change: false
+        }
     };
 
     window.web = web;
     window.$$ = web;
 
-    web.log = function (log) {
-        if (web.c.debug)
-            console.log(log);
+    web.log = function (info) {
+        web.c.debug && console.log(info);
+    };
+    web.debug = function (info) {
+        web.c.debug && console.debug(info);
     };
 
     web.loadCss = function (url) {
@@ -50,7 +51,7 @@
     };
 
     web.initConfig = function () {
-        if (web.c.init < 1 || web.c.access === '') {
+        if (web.c.init < 1 || web.c.token === '') {
             if (web.c.auth) {
                 var lc = web.localConfig();
                 if (!lc || lc.access === '' || lc.token === '')
@@ -84,22 +85,20 @@
         Vue.config.silent = !is_dev;
         Vue.config.devtools = is_dev;
         if (!is_dev) {
-            web.log = function () {
-            };
+            web.log = web.debug = function () {
+            }
         }
     };
 
     web.localStore = function (key, value) {
         if (!key) return false;
-        if (value) return localStorage.setItem(key, JSON.stringify(value));
-        else return JSON.parse(localStorage.getItem(key));
+        return value ? localStorage.setItem(key, JSON.stringify(value)) : JSON.parse(localStorage.getItem(key));
 
     };
 
     web.sessionStore = function (key, value) {
         if (!key) return false;
-        if (value) return sessionStorage.setItem(key, JSON.stringify(value));
-        else return JSON.parse(sessionStorage.getItem(key));
+        return value ? sessionStorage.setItem(key, JSON.stringify(value)) : JSON.parse(sessionStorage.getItem(key));
     };
 
     web.localConfig = function (value) {
@@ -112,20 +111,15 @@
 
         if (web.c.auth && web.c.token !== '') {
             var auth = {Token: web.c.token, Access: web.c.access};
-            if (web.c.auth === 'body')
-                $.extend(opts.data, auth);
-            else
-                opts.headers = auth;
+            web.c.auth === 'body' ? ($.extend(opts.data, auth)) : (opts.headers = auth);
         }
-
-        if (opts.url.indexOf("http://") < 0) opts.url = web.c.host + opts.url;
-        if (opts.url.indexOf(".json") < 0) opts.url += '.json';
+        opts.url.indexOf("http://") < 0 && (opts.url = web.c.host + opts.url);
+        opts.url.indexOf(".json") < 0 && (opts.url += '.json');
         return opts;
     };
 
     web.methods.ajax_result = function (methods, data) {
-        if (!data) data = {code: 400, msg: "网络连接错误，请重试"};
-
+        data = data || {code: 400, msg: "网络连接错误，请重试"};
         var code_name = '$' + data.code;
         if (methods[code_name]) methods[code_name](data);
         else if (web.methods[code_name]) web.methods[code_name](data);
@@ -162,13 +156,6 @@
         }
         web.initDebugConfig();
 
-        //初始化hash_change事件
-        web.on_hash_change = false;
-        window.onhashchange = function () {
-            web.initConfig();
-            if (web.on_hash_change) web.on_hash_change();
-        };
-
         //初始化数据
         if (web.c.init > 1) {
             web.v.$destroy();
@@ -178,17 +165,25 @@
 
         //初始化vue数据
         vue.loaded();
-        vue.data = web.m;
+        vue.data = web.m || {};
 
         //初始化Dom
         $("#app").remove();
         $('body').off().prepend("<div id='app'><div id='content'></div></div>");
+
+        //初始化hash_change事件
+        web.onHashChanged = vue.hashChanged || false;
 
         //初始化并挂载vue
         web.v = new Vue(vue);
         web.v.$mount('#content');
 
         return true;
+    };
+
+    window.onhashchange = function () {
+        web.initConfig();
+        web.onHashChanged && web.onHashChanged();
     };
 
 })(this);

@@ -8,7 +8,7 @@
     web.methods.page_end = false;
 
     function state_url(url) {
-        if (url)return url.split('#')[0] === stateUrl;
+        if (url) return url.split('#')[0] === stateUrl;
         stateUrl = location.href.split('#')[0];
     }
 
@@ -37,24 +37,34 @@
         if (url === location.href) return;
 
         if (type === 'hash') {
-            history_operate(false, url, type);
+            history_operate(url, type);
             return;
         }
 
         if (web.methods.page_start) web.methods.page_start();
 
         get_state(url, function (state) {
-            history_operate(state, url, type);
+            history_operate(url, type);
             page_show(state);
         })
     }
 
-    function history_operate(state, url, type) {
-        if (type === 'replace')
-            window.history.replaceState(state, '', url);
-        else
-            window.history.pushState(state, '', url);
-        state_url();
+    function history_operate(url, type) {
+        switch (type) {
+            case 'replace':
+                window.history.replaceState(type, '', url);
+                state_url();
+                break;
+            case 'hash':
+                setTimeout(function () {
+                    location.href = url;
+                    state_url();
+                }, 0);
+                break;
+            default:
+                window.history.pushState(type, '', url);
+                state_url();
+        }
     }
 
     function page_show(state) {
@@ -98,8 +108,7 @@
 
     window.onpopstate = function () {
         var url = location.href;
-        if (state_url(url)) {
-        } else {
+        if (!state_url(url)) {
             get_state(url, function (state) {
                 page_show(state);
             });
@@ -110,7 +119,7 @@
     $(document).delegate('a', 'click', function (event) {
         var url = $(this).attr('href') + '';
         var type = $(this).attr('data-type') + '';
-        if (url.indexOf('.html') > 0) {
+        if (url.indexOf('.html') > -1) {
             page_push(url, type);
             event.preventDefault();
         }

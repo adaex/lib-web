@@ -26,7 +26,7 @@
 
     web.appLoad = function (vue) {
 
-        if (typeof api == 'undefined') {
+        if (typeof api === 'undefined') {
             window.apiready = function () {
                 web.load(vue);
             };
