@@ -1,5 +1,6 @@
 /*!
  * web_app.js v{version}
+ * build on {time}
  * (c) 2016 hnbtr
  * Released under the MIT License.
  */

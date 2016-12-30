@@ -123,12 +123,15 @@
         var code_name = '$' + data.code;
         if (methods[code_name]) methods[code_name](data);
         else if (web.methods[code_name]) web.methods[code_name](data);
-        else throw new Error("code methods " + code_name + "() not exist")
+        else throw new Error("code methods " + code_name + "() not exist");
+        methods['$end'] && methods['$end']();
     };
 
-    web.ajax = function (para) {
+    web.ajax = function (para, result) {
 
         if (!web.c) throw new Error("[web error] web have not init yet.");
+
+        result = result || para.result || {};
 
         var opts = {
             type: "post",
@@ -136,10 +139,10 @@
             timeout: 15000,
             data: {},
             success: function (data) {
-                web.methods.ajax_result(para.result, data);
+                web.methods.ajax_result(result, data);
             },
             error: function () {
-                web.methods.ajax_result(para.result);
+                web.methods.ajax_result(result);
             }
         };
         $.extend(opts, para);
@@ -167,12 +170,13 @@
         vue.loaded();
         vue.data = web.m || {};
 
+        //初始化hash_change事件
+        web.onHashed = vue.hashed || false;
+        web.onHashed && web.onHashed();
+
         //初始化Dom
         $("#app").remove();
         $('body').off().prepend("<div id='app'><div id='content'></div></div>");
-
-        //初始化hash_change事件
-        web.onHashChanged = vue.hashChanged || false;
 
         //初始化并挂载vue
         web.v = new Vue(vue);
@@ -183,7 +187,7 @@
 
     window.onhashchange = function () {
         web.initConfig();
-        web.onHashChanged && web.onHashChanged();
+        web.onHashed && web.onHashed();
     };
 
 })(this);

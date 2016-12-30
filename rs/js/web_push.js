@@ -1,19 +1,30 @@
 (function (window) {
     'use strict';
 
-    var stateUrl = '';
     web.go = page_push;
     web.methods.page_start = false;
     web.methods.page_error = false;
     web.methods.page_end = false;
+
+    var stateUrl = '';
+    state_url();
 
     function state_url(url) {
         if (url) return url.split('#')[0] === stateUrl;
         stateUrl = location.href.split('#')[0];
     }
 
+    function absolute_url(url) {
+        if (url && url.indexOf(location.protocol) !== 0) {
+            var a = document.createElement('A');
+            a.href = url;
+            url = a.href;
+        }
+        return url;
+    }
+
     function get_state(url, callback) {
-        var short_url = url.split('#')[0].replace(location.protocol + '//' + location.host, '');
+        var short_url = url.split('.html')[0].replace(location.protocol + '//' + location.host, '');
         var state = web.sessionStore(short_url);
         if (state) {
             callback(state);
@@ -34,6 +45,11 @@
     }
 
     function page_push(url, type) {
+
+        if (!url) return;
+
+        url = absolute_url(url);
+
         if (url === location.href) return;
 
         if (type === 'hash') {
@@ -117,9 +133,9 @@
     };
 
     $(document).delegate('a', 'click', function (event) {
-        var url = $(this).attr('href') + '';
+        var url = $(this)[0].href + '';
         var type = $(this).attr('data-type') + '';
-        if (url.indexOf('.html') > -1) {
+        if (url && url.indexOf('.html') > -1) {
             page_push(url, type);
             event.preventDefault();
         }
