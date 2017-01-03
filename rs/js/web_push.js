@@ -2,6 +2,8 @@
     'use strict';
 
     web.go = page_push;
+    web.redirect = page_redirect;
+
     web.methods.page_start = false;
     web.methods.page_error = false;
     web.methods.page_end = false;
@@ -50,7 +52,7 @@
 
         url = absolute_url(url);
 
-        if (url === location.href) return;
+        if (url === window.location.href) return;
 
         if (type === 'hash') {
             history_operate(url, type);
@@ -65,10 +67,23 @@
         })
     }
 
+    function page_redirect(url, type) {
+        if (!url) return;
+        setTimeout(function () {
+            switch (type) {
+                case 'replace':
+                    location.replace(url);
+                    break;
+                default:
+                    location.href = url;
+            }
+        }, 0);
+    }
+
     function history_operate(url, type) {
         switch (type) {
             case 'replace':
-                window.history.replaceState(type, '', url);
+                history.replaceState(type, '', url);
                 state_url();
                 break;
             case 'hash':
@@ -78,7 +93,7 @@
                 }, 0);
                 break;
             default:
-                window.history.pushState(type, '', url);
+                history.pushState(type, '', url);
                 state_url();
         }
     }
