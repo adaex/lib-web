@@ -32,7 +32,7 @@
             callback(state);
         } else {
             $.ajax({
-                url: url,
+                url: url + '?res_state',
                 dataType: 'json',
                 success: function (ret) {
                     web.sessionStore(short_url, ret);

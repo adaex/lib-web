@@ -119,6 +119,7 @@
     };
 
     web.methods.ajax_result = function (methods, data) {
+        if (methods.page_id !== web.c.init) return;
         data = data || {code: 400, msg: "网络连接错误，请重试"};
         var code_name = '$' + data.code;
         if (methods[code_name]) methods[code_name](data);
@@ -132,6 +133,7 @@
         if (!web.c) throw new Error("[web error] web have not init yet.");
 
         result = result || para.result || {};
+        result.page_id = web.c.init;
 
         var opts = {
             type: "post",
