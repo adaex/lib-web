@@ -9,7 +9,8 @@
             $200: false,
             $400: false,
             $401: false,
-            config_check: false
+            config_check: false,
+            beforeLoad: false
         }
     };
 
@@ -119,8 +120,8 @@
     };
 
     web.methods.ajax_result = function (methods, data) {
-        if (methods.page_id !== web.c.init) return;
-        data = data || {code: 400, msg: "网络连接错误，请重试"};
+        if (methods.page_id !== -1 && methods.page_id !== web.c.init) return;
+        data = data || {code: 4001, msg: "网络连接错误，请重试"};
         var code_name = '$' + data.code;
         if (methods[code_name]) methods[code_name](data);
         else if (web.methods[code_name]) web.methods[code_name](data);
@@ -128,12 +129,12 @@
         methods['$end'] && methods['$end']();
     };
 
-    web.ajax = function (para, result) {
+    web.ajax = function (para, result, common) {
 
         if (!web.c) throw new Error("[web error] web have not init yet.");
 
         result = result || para.result || {};
-        result.page_id = web.c.init;
+        result.page_id = common ? -1 : web.c.init;
 
         var opts = {
             type: "post",
@@ -169,6 +170,7 @@
         }
 
         //初始化vue数据
+        web.methods.beforeLoad && web.methods.beforeLoad();
         vue.loaded();
         vue.data = web.m || {};
 
