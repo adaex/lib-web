@@ -10,7 +10,6 @@ function $EE() {
     };
     window.module = {};
     window.exports = {};
-    window.$$CONFIG = {};
 }
 /*support*/
 __inline('./js/support.js');

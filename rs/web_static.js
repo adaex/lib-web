@@ -10,7 +10,6 @@ function $EE() {
     };
     window.module = {};
     window.exports = {};
-    window.$$CONFIG = {};
 }
 
 /*jquery*/

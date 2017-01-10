@@ -55,7 +55,7 @@
         if (web.c.init < 1 || web.c.token === '') {
             if (web.c.auth) {
                 var lc = web.localConfig();
-                if (!lc || lc.access === '' || lc.token === '')
+                if (!web.c.skipAuth && (!lc || lc.access === '' || lc.token === ''))
                     return false;
                 $.extend(web.c, lc);
                 if (web.methods.config_check && !web.methods.config_check())
@@ -78,6 +78,7 @@
         web.c.path = location.pathname.substr(1).replace('.html', '').split('/');
         web.c.hash = location.hash.substr(1).split('/');
         web.c.query = url_query;
+        delete web.c.skipAuth;
         return true;
     };
 
